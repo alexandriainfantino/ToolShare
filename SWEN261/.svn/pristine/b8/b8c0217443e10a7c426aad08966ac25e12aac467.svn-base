@@ -1,0 +1,24 @@
+"""
+urls.py
+
+URL patterns for ToolShare routes.
+
+Copyright 2014 Stark.
+"""
+
+from django.conf.urls import patterns
+from django.conf.urls import url
+
+from ToolShare.views import home as home_views
+from ToolShare.views import auth as auth_views
+from ToolShare.views import account as account_views
+from ToolShare.views import shed as shed_views
+
+urlpatterns = patterns('',
+    url(r'^$', home_views.index, name='index'),
+    url(r'^login$', auth_views.login, name='login'),
+    url(r'^logout$', auth_views.logout, name='logout'),
+    url(r'^register$', account_views.register, name='register'),
+    url(r'^shed$', shed_views.view_shed, name='shed'),
+)
+

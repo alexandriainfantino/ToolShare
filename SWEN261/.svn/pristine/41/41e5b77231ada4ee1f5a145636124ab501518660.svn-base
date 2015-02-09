@@ -1,0 +1,111 @@
+"""
+logic/shed.py
+
+Functions for interacting with ToolShare Shed objects.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare import models
+
+
+def get_shed_for_community(community):
+    """
+    Gets the shed for a community.
+
+    Args:
+        community: Community to get global shed for.
+
+    Returns:
+        Shed instance or None if none exists.
+    """
+    if community is None:
+        return None
+
+    return community.sheds.first()
+
+def create_shed_for_community(community, location):
+    """
+    Creates a shed in the community.
+
+    Only allows for one shed to exist per community at the moment.
+
+    Args:
+        community: Community to create shed in.
+        location: Location instance for the shed.
+
+    Returns:
+        New shed instance.
+    """
+    if get_shed_for_community(community) is not None:
+        raise Exception(
+                'A shed for community %s already exists.' % str(community))
+
+    shed = models.Shed(community=community, location=location)
+    shed.save()
+
+def shed_coordinators_for_community(community):
+    """
+    Gets shed coordinators in a community.
+
+    Args:
+        community: Community to check for coordinators in
+
+    Returns:
+        list of coordinators
+    """
+    return get_shed_for_community(community).shed_coordinators.all()
+
+def sheds_profile_is_coordinating(profile):
+    """
+    Gets sheds a specific profile is coordinating
+
+    Args:
+        profile: profile checking for sheds coordinating
+
+    Returns:
+        list of sheds profile is coordinating
+    """
+    return profile.sheds.all()
+
+def is_shed_coordinator(shed, profile):
+    """
+    Checks if someone coordinates a specific shed
+
+    Args:
+        profile: coordinator that's being checked
+        shed: specific shed if they coordinate
+
+    Returns:
+        True if they are coordinating that shed
+    """
+    return profile in shed.shed_coordinators.all()
+
+def add_shed_coordinator(shed, profile):
+    """
+    Adds a profile to a shed as a coordinator
+
+    Args:
+        profile: profile to promote
+        shed: to be coordinated by this person
+
+    Returns:
+        Nothin
+    """
+    coordinator = models.ShedCoordinator(profile=profile,shed=shed)
+    coordinator.save()
+
+def remove_shed_coordinator(shed, profile):
+    """
+    Removes a shed coordinator from a shed
+
+    Args:
+        profile: person to be demoted
+        shed: the shed they currently coordinate
+
+    Returns:
+        Nothin
+    """
+    shed_coords = models.ShedCoordinator.objects.filter(shed=shed,profile=profile).all()
+    shed_coords.delete()
+

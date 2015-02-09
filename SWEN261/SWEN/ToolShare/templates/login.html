@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/css/login.css" />
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(function() {
+        setTimeout(function() {
+            $('#username').focus();
+        }, 0);
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<form action="{{ urls.login }}" method="POST">
+    <div class="login-container">
+        <div class="page-header"><h1>Sign In</h1></div>
+        <div class="well">
+            <div class="alert alert-warning">{{ form.error }}</div>
+            <div class="form-group">
+                <label class="control-label" for="username">Username</label>
+                <input class="form-control input-lg" tabindex="1" type="text" id="username" name="username" value="{{ form.fields.username.value }}"/>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="password">Password</label>
+                <input class="form-control input-lg" tabindex="2" type="password" id="password" name="password" />
+            </div>
+            {% csrf_token %}
+            <input class="btn btn-primary" tabindex="3" type="submit" value="Sign In" />
+        </div>
+    </div>
+</form>
+{% endblock %}
+

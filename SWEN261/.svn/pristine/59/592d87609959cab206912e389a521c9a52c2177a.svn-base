@@ -1,0 +1,137 @@
+"""
+logic/borrowing.py
+
+Functions for interacting with ToolShare Borrowing objects and managing
+the tool requesting+borrowing process.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare import models
+
+
+def request_tool(profile, tool):
+    """
+    Creates a request for borrowing a tool, if possible.
+    
+    Args:
+        profile: Profile of user requesting a tool.
+        tool: Tool instance the profile is requesting.
+
+    Returns:
+        New Borrowing instance.
+    """
+    if profile.id == tool.owner.id:
+        raise Exception('Tool owner cannot borrow their own tool.')
+
+    if tool.borrowing is not None:
+        if tool.borrowing.status == models.Borrowing.STATUS_REQUESTED:
+            raise Exception('Another user is already requesting this tool.')
+        elif tool.borrowing.status == models.Borrowing.STATUS_IN_USE:
+            raise Exception('Another user is already borrowing this tool.')
+        elif tool.borrowing.status == models.Borrowing.STATUS_READY:
+            raise Exception('Tool is ready to be picked up by borrower.')
+        else:
+            raise Exception('This tool is already reserved for another user.')
+
+    
+    if tool.borrowing is not None:
+        b = models.Borrowing()
+        b. status = STATUS_REQUESTED
+        b.borrower = profile.user
+        b.pickup_location = tool.location or None
+        b.dropoff_location = tool.location or None
+        b.save
+
+        return b
+
+def mark_ready(tool):
+    """
+    Marks tool as ready for pickup
+    
+    Args:
+        tool: Tool instance the profile is requesting.
+
+    Returns:
+    """
+    if tool.borrowing.STATUS_REQUESTED == True:
+        tool.borrowing.status = 'Approved'
+        tool.borrowing.status = STATUS_READY
+    else:
+        tool.borrowing.status = 'Rejected'
+        tool.borrowing = None
+
+def mark_picked_up(tool):
+    """
+    Marks tool as has been picked up, sets location to borrowers home
+    
+    Args:
+        tool: Tool instance the profile is requesting.
+
+    Returns:
+    """
+    tool.borrowing.status = STATUS_IN_USE
+    tool.location = tool.borrower.profile.location_home
+
+def mark_dropped_off(tool):
+    """
+    Marks tool as ready for pickup has been dropped of at shed, changes
+    location back to shed
+    
+    Args:
+        tool: Tool instance the profile is requesting.
+
+    Returns:
+    """
+    tool.borrowing = None
+    tool.location = shed.location
+
+
+def change_pickup_location(tool, new_location):
+    """
+    Changes tool's pickup location
+    
+    Args:
+        tool: Tool instance the profile is requesting.
+        new_location: the new location the tool is being picked up from
+
+    Returns:
+    """    
+    tool.borrowing.pickup_location = new_location
+
+def change_dropoff_location(tool, new_location):
+    """
+    Changes dropoff location for tool
+    
+    Args:
+        tool: Tool instance the profile is requesting.
+        new_location: the new location the tool is being dropped off
+    Returns:
+    """
+    tool.borrowing.dropoff_location = new_location
+
+def check_status(tool):
+    """
+    Checks tools current status which is either available for request or
+    not
+    
+    Args:
+        tool: Tool instance the profile is requesting.
+    Returns:
+    """
+    if(tool.borrowing is not None):
+        return 'another user has already requested or is borrowing tool'
+    if(tool.borrowing is None):
+        return 'tool is available for borrowing request'
+
+        
+
+
+
+    
+
+        
+
+
+# TODO(Nick): Add other logic functions needed for borrowing-related use cases.
+

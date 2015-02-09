@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{% block title %}ToolShare{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="/static/css/material.css" />
+        <link rel="stylesheet" type="text/css" href="/static/css/ripples.css" />
+        <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+        <link rel="stylesheet" type="text/css" href="/static/css/ui.css" />
+        {% block stylesheets %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="navbar navbar-default" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/">ToolShare</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    {% if not initial_registration %}
+                    <ul class="nav navbar-nav navbar-left">
+                        {% if not user.is_anonymous %}
+                        <li><a href="{{ urls.shed }}">View Shed</a></li>
+                        {% endif %}
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if nav.show_auth %}
+                            {% if user.is_anonymous %}
+                            <li><a href="{{ urls.login }}">Sign In</a></li>
+                            {% else %}
+                            <li class="dropdown">
+                                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
+                                    {{ user.first_name }} {{ user.last_name }} <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{{ urls.logout }}">Sign Out</a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h1 class="page-header">{% block header %}{% endblock %}</h1>
+            {% if not raw_content %}
+            <div class="well">
+            {% endif %}
+                {% block content %}{% endblock %}
+            {% if not raw_content %}
+            </div>
+            {% endif %}
+        </div>
+    </body>
+    <script src="/static/js/jquery-1.11.1.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script src="/static/js/material.js"></script>
+    <script src="/static/js/ripples.js"></script>
+    {% block scripts %}
+    {% endblock %}
+</html>
+

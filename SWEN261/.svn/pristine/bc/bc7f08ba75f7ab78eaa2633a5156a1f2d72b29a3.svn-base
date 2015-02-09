@@ -1,0 +1,46 @@
+/* Sectional form style */
+
+.sectional-form fieldset {
+    position: relative;
+    padding-left: 200px;
+    border-bottom: solid 1px #d4d4d4;
+    padding-bottom: 30px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.sectional-form legend {
+    position: absolute;
+    top: 0;
+    left: 50px;
+    bottom: 0;
+    width: 150px;
+    cursor: default;
+}
+
+.sectional-form fieldset > *:not(legend):not(p) {
+    width: 300px;
+}
+
+.sectional-form p,
+.sectional-form .form-group {
+    margin-bottom: 20px;
+}
+
+.sectional-form input[type=submit] {
+    margin-left: 200px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.sectional-form label.error {
+    font-size: 10px;
+    font-weight: 400;
+    position: relative;
+    top: -3px;
+}
+
+.sectional-form label.error:empty {
+    display: none;
+}
+

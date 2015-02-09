@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block header %}{{ greeting }}{% endblock %}
+
+{% block content %}
+Hey there.
+{% endblock %}
+

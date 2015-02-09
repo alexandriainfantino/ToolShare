@@ -1,0 +1,34 @@
+ToolShare
+======
+
+Unix Instructions
+------
+
+1. Install python3.
+2. Install virtualenv
+      pip install virtualenv
+3. For the very first setup, run the boostrap script:
+      ./bootstrap.sh
+
+General use:
+
+Note: If using virtualenv, run this command:
+      source venv/bin/activate
+
+- To create the database tables:
+      python SWEN/manage.py syncdb
+
+- To launch the server:
+      python SWEN/manage.py runserver
+
+Windows Instructions
+------
+
+Install python3, django 1.6, and pysqlite.
+
+- To create the database tables:
+      python SWEN/manage.py syncdb
+
+- To launch the server:
+      python SWEN/manage.py runserver
+

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block header %}{{ greeting }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">Tools I'm Borrowing</h3>
+            </div>
+            <div class="panel-body">
+                {% if borrowed_tools %}
+                <div class="row toollist">
+                    {% for tool in borrowed_tools %}
+                    <div class="col-sm-4">
+                        <a href="{% url 'tool' tool.id %}" class="btn btn-default tool {% if tool in action_pending_tools %}action-pending{% endif %}">
+                            <div class="title">{{ tool.name }}</div>
+                            <div class="description">{{ tool.description|truncatechars:70 }}</div>
+                            <div class="status {{ tool.status_string }}">
+                                {{ tool.status_string }}
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <em>You're not currently borrowing any tools.<br />
+                    Browse available tools in the 
+                    <a href="{% url 'shed' %}">shed</a>.
+                </em>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    My Tools
+                    <a href="{% url 'new-tool' %}" class="btn btn-default btn-xs btn-in-panel-title">
+                        <i class="glyphicon glyphicon-plus"></i>&nbsp;
+                        add
+                    </a>
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% if owned_tools %}
+                <div class="row toollist">
+                    {% for tool in owned_tools %}
+                    <div class="col-sm-4">
+                        <a href="{% url 'tool' tool.id %}" class="btn btn-default tool {% if tool in action_pending_tools %}action-pending{% endif %}">
+                            <div class="title">{{ tool.name }}</div>
+                            <div class="description">{{ tool.description|truncatechars:70 }}</div>
+                            <div class="status {{ tool.status_string }}">
+                                {{ tool.status_string }}
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <em>
+                    You have not shared any tools with the community yet.
+                </em>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

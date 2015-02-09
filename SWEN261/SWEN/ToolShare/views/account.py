@@ -1,0 +1,217 @@
+"""
+views/account.py
+
+Django views for account-related requests.
+
+Copyright 2014 Stark.
+"""
+
+from django.core.urlresolvers import reverse
+from django.contrib import auth as django_auth
+from django import http
+from django.contrib.auth import decorators as auth_decorators
+
+from ToolShare.views import render
+from ToolShare.views import decorators
+
+from ToolShare.logic import community as community_logic
+from ToolShare.logic import location as location_logic
+from ToolShare.logic import profile as profile_logic
+from ToolShare.logic import shed as shed_logic
+
+import re
+
+
+def register(request):
+    """
+    Registration page/form request handler.
+
+    Args:
+        request: Django request object.
+
+    Returns:
+        Django response object.
+    """
+    props = {
+        'form': {
+            'fields': {
+                'username': {
+                    'title': 'username',
+                    },
+                'password': {
+                    'title': 'password',
+                    },
+                'password2': {
+                    'title': 'password confirmation',
+                    },
+                'email': {
+                    'title': 'email',
+                    },
+                'first_name': {
+                    'title': 'first name',
+                    },
+                'last_name': {
+                    'title': 'last name',
+                    },
+                'address': {
+                    'title': 'address',
+                    },
+                },
+            },
+        }
+
+    # If initial registration, add additional form fields.
+    community = community_logic.get_global_community()
+    initial = community is None
+    if initial:
+        props['initial_registration'] = True
+        props['form']['fields']['shed_address'] = {
+            'title': 'shed address',
+            }
+
+    if request.user.is_authenticated():
+        return http.HttpResponseRedirect(reverse('index'))
+
+    if request.POST:
+        # Load in form values.
+        fields = props['form']['fields']
+        for field_name in request.POST:
+            if field_name in fields:
+                fields[field_name]['value'] = request.POST.get(
+                        field_name, None).strip()
+
+        # Check for empty field values.
+        for field_name, field in props['form']['fields'].items():
+            if not ('value' in field and field['value']):
+                field['error'] = ('%s is required.' %
+                        field['title']).capitalize()
+                if not 'error' in props['form']:
+                    props['form']['error'] = 'Please fill out required fields.'
+
+        # Check for valid and unique username.
+        if 'value' in fields['username']:
+            pattern = re.compile(r'[\W_]+')
+            clean_username = pattern.sub('', fields['username']['value'])
+            if clean_username != fields['username']['value']:
+                error = 'Username is invalid. Must be alphanumeric.'
+                fields['username']['error'] = error
+                if not 'error' in props['form']:
+                    props['form']['error'] = error
+            elif profile_logic.get_profile_for_username(
+                    fields['username']['value']) is not None:
+                error = 'That username is already taken.'
+                fields['username']['error'] = error
+                if not 'error' in props['form']:
+                    props['form']['error'] = error
+
+        # Verify that passwords match.
+        if 'value' in fields['password'] and 'value' in fields['password2']:
+            error = 'Your passwords did not match.'
+            if fields['password']['value'] != fields['password2']['value']:
+                fields['password2']['error'] = error
+                if not 'error' in props['form']:
+                    props['form']['error'] = error
+
+        if not 'error' in props['form']:
+            if initial:
+                # Create community object
+                community = community_logic.create_community()
+
+                # Create shed object
+                shed_loc = location_logic.create_location(
+                        fields['shed_address']['value'])
+                shed = shed_logic.create_shed_for_community(
+                        community, shed_loc)
+
+            # Create user and profile
+            user, profile = profile_logic.create_user_and_profile(
+                    username=fields['username']['value'],
+                    password=fields['password']['value'],
+                    email=fields['email']['value'],
+                    first_name=fields['first_name']['value'],
+                    last_name=fields['last_name']['value'],
+                    address=fields['address']['value'],
+                    community=community)
+
+            if initial:
+                # Make user an administrator
+                user.is_superuser = True
+                user.is_staff = True
+                user.save()
+
+            # Log the user in and return them to the home page
+            user = django_auth.authenticate(
+                    username=fields['username']['value'],
+                    password=fields['password']['value'])
+            django_auth.login(request, user)
+            return http.HttpResponseRedirect(reverse('index'))
+
+    return render(request, 'register.html', props)
+
+
+@decorators.require_initial_registration()
+@auth_decorators.login_required()
+@decorators.get_profile()
+def edit_profile(request):
+    """
+    Account edit page/form request handler.
+
+    Args:
+        request: Django request object.
+
+    Returns:
+        Django response object.
+    """
+    props = {
+        'form': {
+            'fields': {
+                'email': {
+                    'title': 'email',
+                    'value': request.profile.user.email,
+                    },
+                'first_name': {
+                    'title': 'first name',
+                    'value': request.profile.user.first_name,
+                    },
+                'last_name': {
+                    'title': 'last name',
+                    'value': request.profile.user.last_name,
+                    },
+                'address': {
+                    'title': 'address',
+                    'value': request.profile.location_home.address,
+                    },
+                },
+            },
+        }
+
+    if request.POST:
+        # Load in form values.
+        fields = props['form']['fields']
+        for field_name in request.POST:
+            if field_name in fields:
+                fields[field_name]['value'] = request.POST.get(
+                        field_name, None).strip()
+
+        # Check for empty field values.
+        for field_name, field in props['form']['fields'].items():
+            if not ('value' in field and field['value']):
+                field['error'] = ('%s is required.' %
+                        field['title']).capitalize()
+                if not 'error' in props['form']:
+                    props['form']['error'] = 'Please fill out required fields.'
+
+
+        if not 'error' in props['form']:
+            # Update user and profile
+            request.profile.user.email = fields['email']['value']
+            request.profile.user.first_name = fields['first_name']['value']
+            request.profile.user.last_name = fields['last_name']['value']
+            request.profile.user.save()
+            request.profile.location_home.address = fields['address']['value']
+            request.profile.location_home.save()
+
+            return http.HttpResponseRedirect(reverse('index'))
+
+    return render(request, 'edit_profile.html', props)
+

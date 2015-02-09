@@ -1,0 +1,56 @@
+"""
+views/__init__.py
+
+Main module file for web views.
+
+Copyright 2014 Stark.
+"""
+
+from django import shortcuts as django_shortcuts
+from django.core.urlresolvers import reverse
+from django import http
+from django.contrib.auth import decorators as auth_decorators
+
+from ToolShare.logic import profile as profile_logic
+
+
+def render(request, template, dictionary=None):
+    """
+    Renders a template for a template and dictionary.
+
+    Args:
+        request: Request object.
+        template: String name of request file to render (e.g. 'index.html').
+        dictionary: Dict of additional properties (optional).
+
+    Returns:
+        Django response object.
+    """
+    profile = None
+
+    if request.user.is_authenticated():
+        profile = getattr(request, 'profile', None)
+        if profile is None:
+            profile = profile_logic.get_profile_for_user(request.user)
+        
+    response_dictionary = {
+        'profile': profile,
+        'urls': {
+            'login': reverse('login'),
+            'logout': reverse('logout'),
+            'register': reverse('register'),
+            'shed': reverse('shed'),
+            'add_shed_coordinator': reverse('add-shed-coordinator'),
+            'remove_shed_coordinator': reverse('remove-shed-coordinator'),
+            },
+        'nav': {
+            'show_auth': True,
+            },
+        }
+
+    if dictionary is not None:
+        for key in dictionary:
+            response_dictionary[key] = dictionary[key]
+
+    return django_shortcuts.render(request, template, response_dictionary)
+

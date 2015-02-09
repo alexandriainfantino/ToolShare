@@ -1,0 +1,168 @@
+"""
+logic/tool.py
+
+Functions for interacting with ToolShare Tool objects.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare import models
+
+#############################SEARCHING FUNCTIONS########################
+
+def get_tools_by_owning_profile(profile):
+    """
+    Gets the tools a profile owns.
+
+    Args:
+        profile: Profile of tool owner.
+
+    Returns:
+        List of tool instances owned by the profile.
+    """
+    return models.Tool.objects.filter(owner=profile).all()
+
+
+def get_tools_borrowed_by_profile(profile):
+    """
+    Gets the tools being borrowed (or requested) by a profile.
+
+    Args:
+        profile: Profile of tool borrower/requester.
+
+    Returns:
+        List of tools being borrowed/requested/reserved by the profile.
+    """
+    borrowings = models.Borrowing.objects.filter(borrower=profile).all()
+
+    def tool_for_borrowing(borrowing):
+        return borrowing.tool
+    
+    return map(tool_for_borrowing, borrowings)
+
+
+def get_tools_for_shed(shed):
+    """
+    Gets the tools listed under a shed (virtually, not just physically).
+
+    Args:
+        shed: Shed tools belong to.
+
+    Returns:
+        List of tools added to the shed.
+    """
+    return models.Tool.objects.filter(shed=shed).all()
+
+def get_tool_by_field(field, shed):
+    """
+    Gets the tools listed under a shed correspong to a search name entered
+
+    Args:
+        shed: Shed tools belong to.
+        field: user entered field (ex: hammer)
+
+    Returns:
+        List of tools containg the phrase in their name
+    """
+    
+    return (models.Tool.objects.filter (name_contains = field) and\
+           models.Tool.objects.filter(shed=shed).all())
+
+##########################CREATES TOOL OJECT###############################
+def create_tool(owner, shed, name, year=None, description=None, location=None):
+    """
+    Creates a new tool instance.
+
+    Args:
+        owner: Profile that owns the tool.
+        shed: Shed the tool belongs to, even if it's not physically in it.
+        name: Name of the tool.
+        year: Year of the tool (optional).
+        description: Longer description of the tool, condition, etc (optional).
+        location: Location instance for the tool's current location. Should be
+                  either the shed's location, the owner's home location, or
+                  None if the tool is currently "in-transit".
+
+    Returns:
+        New tool instance.
+    """
+    t = models.Tool()
+    t.owner = owner
+    t.shed = shed
+    t.name = name
+    t.year = year
+    t.description = description
+    t.location = location
+    t.save()
+    
+    
+    
+    return t
+
+
+###############################LOCATION FUNCTIONS############################
+def is_at_owners(tool):
+    """
+    Returns boolean of if the tool is at owners house
+
+    Args:
+        tool: tool object being examined
+
+    Returns:
+        Boolean
+    """
+    if(tool.owner.location_home == tool.location):
+        return True
+    return False
+
+def is_in_shed(tool, shed)
+    """
+    Returns boolean of if the tool is at shed
+
+    Args:
+        tool: tool object being examined
+        shed: the shed that the tool may, or may not, be at
+
+    Returns:
+        Boolean
+    """
+    if(tool.location == shed.location):
+        return True
+    return False
+    
+def is_available(tool):
+        """
+    Returns boolean of if the tool is available
+
+    Args:
+        tool: tool object being examined
+
+    Returns:
+        Boolean
+    """
+    if(hasattr(tool, 'borrowing') == True):
+        return True
+    return False
+
+
+def shed_change_location(tool, new_location): #function to change location
+    """
+    Changes tools location to reflect it's current status
+
+    Args:
+        tool: the tool being examined
+        new_location: the new location or status of the tool
+
+        Returns:
+        
+    """
+    if(new_location == None):
+        tool.location = "in transit"
+    else:
+        tool.location = new_location
+    tool.save(update_fields = ['location'])
+
+
+
+
+

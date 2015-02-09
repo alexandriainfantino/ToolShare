@@ -1,0 +1,27 @@
+"""
+logic/profile.py
+
+Functions for interacting with ToolShare Profile objects.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare import models
+
+
+def get_profile_for_user(user):
+    """
+    Gets a Profile instance for a Django User instance.
+    
+    Args:
+        user: Django user instance.
+
+    Returns:
+        Profile instance or None.
+    """
+    return models.Profile.objects.get(user=user)
+
+
+# TODO(Lakshay): Add other logic functions needed for profile and
+#                user-related use cases.
+

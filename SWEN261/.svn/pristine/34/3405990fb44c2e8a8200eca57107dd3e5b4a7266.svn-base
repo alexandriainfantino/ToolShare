@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if new_tool %}
+New Tool
+{% else %}
+Edit Tool
+{% endif %}
+{% endblock %}
+
+{% block header %}
+{% if new_tool %}
+New Tool
+{% else %}
+Edit {{ tool.name|truncatechars:20 }}
+{% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/css/tool.css" />
+{% endblock %}
+
+{% block content %}
+<form action="?" class="sectional-form tool-form" method="POST">
+    <div class="alert alert-warning">{{ form.error }}</div>
+    <fieldset>
+        <legend>Tool Info</legend>
+        <div class="form-group {% if form.fields.name.error %}has-error{% endif %}">
+            <label class="control-label" for="name">Name</label>
+            <input class="form-control input-lg" tabindex="1" type="text" id="name" name="name" value="{{ form.fields.name.value }}" />
+            <label class="control-label error" for="name">{{ form.fields.name.error }}</label>
+        </div>
+        <div class="form-group {% if form.fields.description.error %}has-error{% endif %}">
+            <label class="control-label" for="description">Description</label>
+            <textarea rows="4" name="description" class="form-control" id="description">{{ form.fields.description.value }}</textarea>
+            <label class="control-label error" for="description">{{ form.fields.description.error }}</label>
+        </div>
+        <div class="form-group {% if form.fields.year.error %}has-error{% endif %}" style="width: 100px;">
+            <label class="control-label" for="year">Year (optional)</label>
+            <input class="form-control input-lg" tabindex="1" type="text" id="year" name="year" value="{{ form.fields.year.value }}" />
+            <label class="control-label error" for="year">{{ form.fields.year.error }}</label>
+        </div>
+        {% if form.fields.location %}
+        <div class="form-group {% if form.fields.location.error %}has-error{% endif %}" style="width: 150px;">
+            <label class="control-label" for="location">Current Location</label>
+            <select class="form-control" value="{{ form.fields.location.value }}" name="location" id="location">
+                {% for opt_name, opt_val in form.fields.location.values.items %}
+                <option {% if opt_name == form.fields.location.value %}selected="selected"{% endif %} value="{{ opt_name }}">{{ opt_val }}</option>
+                {% endfor %}
+            </select>
+            <label class="control-label error" for="location">{{ form.fields.location.error }}</label>
+        </div>
+        {% endif %}
+    </fieldset>
+    {% csrf_token %}
+    {% if new_tool %}
+    <input class="btn btn-primary" tabindex="99" type="submit" value="Add Tool" />
+    {% else %}
+    <input class="btn btn-primary" tabindex="99" type="submit" value="Save Tool" />
+    {% endif %}
+</form>
+{% endblock %}
+

@@ -1,0 +1,41 @@
+"""
+views/home.py
+
+Django views for home page requests.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare.views import render
+from ToolShare.views import decorators
+
+import random
+
+
+@decorators.require_initial_registration()
+def index(request):
+    """
+    Homepage request handler.
+
+    Args:
+        request: Django request object.
+
+    Returns:
+        Django response object.
+    """
+    if not request.user.is_authenticated():
+        return render(request, 'landing.html')
+
+    greetings = [
+        'Nice to see you, %(first_name)s.',
+        'Welcome back, %(first_name)s!',
+        'Hey there, %(first_name)s.',
+        ]
+    greeting = random.choice(greetings) % {
+        'first_name': request.user.first_name,
+        }
+
+    return render(request, 'main.html', {
+        'greeting': greeting,
+        })
+

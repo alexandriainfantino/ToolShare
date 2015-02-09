@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/css/tool.css" />
+{% endblock %}
+
+{% block title %}{{ tool.name }}{% endblock %}
+
+{% block header %}{{ tool.name|truncatechars:30 }}{% endblock %}
+
+{% block actions %}
+<ul class="page-actions">
+    {% if can_request_borrow %}
+    <li class="dropdown">
+        <a href="#" class="btn btn-xs btn-default" data-toggle="dropdown">
+            Request To Borrow
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li class="dropdown-header">Where do you want to pick it up?</li>
+            <li>
+                <a href="#" onclick="return requestTool('shed')">
+                    Community Shed
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="return requestTool('owner')">
+                    Owner's Home
+                </a>
+            </li>
+        </ul>
+    </li>
+    {% endif %}
+    {% if can_cancel_request %}
+    <li><a href="#" class="btn btn-xs btn-default" onclick="return cancelRequest()">
+        Cancel Borrow Request
+    </a></li>
+    {% endif %}
+    {% if can_accept_request %}
+    <li><a href="#" class="btn btn-xs btn-success" onclick="return acceptRequest()">
+        Accept Borrow Request
+    </a></li>
+    <li><a href="#" class="btn btn-xs btn-warning" onclick="return rejectRequest()">
+        Reject Borrow Request
+    </a></li>
+    {% endif %}
+</ul>
+{% endblock %}
+
+{% block fab %}
+{% if can_edit %}
+<a href="{% url 'edit-tool' tool.id %}" class="btn btn-raised btn-fab btn-primary icon-material-create"></a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-6">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">Information</h3>
+            </div>
+            <div class="panel-body">
+                <table>
+                    <tr>
+                        <th>Owner:</th>
+                        <td>{{ tool.owner }}</td>
+                    </tr>
+                    {% if tool.year %}
+                    <tr>
+                        <th>Year:</th>
+                        <td>{{ tool.year }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if tool.description %}
+                    <tr>
+                        <th>Description:</th>
+                        <td>{{ tool.description|linebreaks }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Location:</th>
+                        <td>
+                            {% if tool.location == tool.shed.location %}
+                            <a href="{% url 'shed'  %}">Shed</a>
+                            {% elif tool.location == tool.owner.location_home %}
+                            Owner's Home
+                            {% elif tool.borrowing and tool.location == tool.borrowing.borrower.location_home %}
+                            Borrower's Home
+                            {% else %}
+                            Unknown
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if user.is_staff and tool.location %}
+                    <tr>
+                        <th>Current Address:</th>
+                        <td>
+                            {{ tool.location|linebreaks }}
+                            <em>(Address only visible to admins.)</em>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">Tool Status</h3>
+            </div>
+            <div class="panel-body">
+                {% if status_available %}
+                Tool is available!
+                {% elif status_requested %}
+                    {% if tool.borrowing.borrower == profile %}
+                    You have requested to borrow this tool.
+                    {% elif can_view_requester %}
+                    {{ tool.borrowing.borrower }} has requested to borrow this tool.
+                    {% else %}
+                    Tool has been requested.
+                    {% endif %}
+                {% elif status_ready %}
+                Tool is ready for pickup by borrower.
+                {% elif status_in_use %}
+                Tool is currently in use.
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% csrf_token %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/ajax.js" type="text/javascript"></script>
+<script>
+    $(function() {
+        var csrf = $('input[name=csrfmiddlewaretoken]').val();
+
+        var reload = function() {
+            location.reload();
+        };
+
+        var alertError = function(action) {
+            return function(message) {
+                message = 'Error ' + action + ': ' + message;
+                console.error(message);
+                alert(message);
+            };
+        };
+
+        {% if can_request_borrow %}
+        window.requestTool = function(pickup_location) {
+            ts.ajax({
+                url: "{% url 'request-tool' %}",
+                csrf: csrf,
+                data: {
+                    pickup_location: pickup_location,
+                    tool_id: {{ tool.id }}
+                },
+                success: reload,
+                error: alertError('requesting tool')
+            });
+
+            return false;
+        };
+        {% endif %}
+
+        {% if can_cancel_request %}
+        window.cancelRequest = function(pickup_location) {
+            ts.ajax({
+                url: "{% url 'cancel-tool-request' %}",
+                csrf: csrf,
+                data: {
+                    tool_id: {{ tool.id }}
+                },
+                success: reload,
+                error: alertError('canceling tool request')
+            });
+
+            return false;
+        };
+        {% endif %}
+
+        {% if can_accept_request %}
+        window.acceptRequest = function() {
+            ts.ajax({
+                url: "{% url 'accept-tool-request' %}",
+                csrf: csrf,
+                data: {
+                    tool_id: {{ tool.id }}
+                },
+                success: reload,
+                error: alertError('accepting request')
+            });
+
+            return false;
+        };
+        window.rejectRequest = function() {
+            ts.ajax({
+                url: "{% url 'reject-tool-request' %}",
+                csrf: csrf,
+                data: {
+                    tool_id: {{ tool.id }}
+                },
+                success: reload,
+                error: alertError('rejecting request')
+            });
+
+            return false;
+        };
+        {% endif %}
+    });
+</script>
+{% endblock %}
+

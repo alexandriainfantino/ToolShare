@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block header %}Administration{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Administrators
+                    <a href="#" onclick="return addAdmin()" class="btn btn-default btn-xs btn-in-panel-title">
+                        <i class="glyphicon glyphicon-plus"></i>&nbsp;
+                        add
+                    </a>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <form id="add-admin-form">
+                    {% csrf_token %}
+                    <div class="input-container">
+                        <input class="form-control floating-label" id="admin_username" type="text" placeholder="username" />
+                    </div>
+                    <button class="btn btn-flat btn-success">
+                        <i class="icon-material-person-add"></i>
+                    </button>
+                    <div class="error"></div>
+                </form>
+                <ul class="plain">
+                {% for admin in admins %}
+                <li>
+                    <i class="glyphicon glyphicon-user"></i>&nbsp;
+                    {{ admin.user.first_name }}
+                    {{ admin.user.last_name }}
+                    {% if admin != profile %}
+                    <a href="#" class="btn-remove" onclick="return removeAdmin('{{ admin.user.username }}')">
+                        <i class="glyphicon glyphicon-remove"></i>
+                    </a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(function() {
+        var $admin_form = $('#add-admin-form');
+
+        window.addAdmin = function() {
+            $admin_form.fadeIn();
+            $admin_form.find('input[type=text]').focus();
+            return false;
+        };
+
+        window.removeAdmin = function(username) {
+            var csrf = $admin_form.find('input[name=csrfmiddlewaretoken]').val();
+
+            var success = function(data, textStatus, jqXHR) {
+                if (data.error) {
+                    console.error(data.error);
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                location.reload();
+            };
+
+            var error = function(jqXHR, textStatus, error) {
+                console.error(error);
+                alert('Error removing admin: ' + error);
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'remove-admin' %}',
+                data: {
+                    username: username,
+                    csrfmiddlewaretoken: csrf
+                },
+                success: success,
+                error: error,
+                dataType: 'json'
+            });
+
+            return false;
+        };
+
+        $admin_form.submit(function(e) {
+            var username = $('#admin_username').val();
+            var csrf = $admin_form.find('input[name=csrfmiddlewaretoken]').val();
+
+            var success = function(data, textStatus, jqXHR) {
+                if (data.error) {
+                    $admin_form.find('.error').text(data.error);
+                    $admin_form.find('button').removeProp('disabled');
+                    return;
+                }
+
+                location.reload();
+            };
+
+            var error = function(jqXHR, textStatus, error) {
+                $admin_form.find('.error').text(error);
+                $admin_form.find('button').removeProp('disabled');
+            }
+
+            $admin_form.find('button').prop('disabled', 'disabled');
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'add-admin' %}',
+                data: {
+                    username: username,
+                    csrfmiddlewaretoken: csrf
+                },
+                success: success,
+                error: error,
+                dataType: 'json'
+            });
+
+            e.preventDefault();
+        });
+    });
+</script>
+{% endblock %}
+

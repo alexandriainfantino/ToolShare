@@ -1,0 +1,74 @@
+"""
+urls.py
+
+URL patterns for ToolShare routes.
+
+Copyright 2014 Stark.
+"""
+
+from django.conf.urls import patterns
+from django.conf.urls import url
+
+from ToolShare.views import home as home_views
+from ToolShare.views import auth as auth_views
+from ToolShare.views import account as account_views
+from ToolShare.views import shed as shed_views
+from ToolShare.views import tool as tool_views
+from ToolShare.views import stats as stats_views
+from ToolShare.views import admin as admin_views
+
+urlpatterns = patterns('',
+    url(r'^$', home_views.index, name='index'),
+    url(r'^login$', auth_views.login, name='login'),
+    url(r'^logout$', auth_views.logout, name='logout'),
+    url(r'^register$', account_views.register, name='register'),
+    url(r'^search$', tool_views.search, name='search'),
+    url(r'^admin$', admin_views.admin, name='admin'),
+    url(r'^admin/remove$', admin_views.remove_admin, name='remove-admin'),
+    url(r'^admin/add$', admin_views.add_admin, name='add-admin'),
+    url(r'^stats$', stats_views.stats, name='stats'),
+    url(r'^shed$', shed_views.view_shed, name='shed'),
+    url(r'^profile/edit$', account_views.edit_profile, name='edit-profile'),
+    url(r'^shed/address/set$',
+        shed_views.set_address,
+        name='set-shed-address'),
+    url(r'^shed/coordinator/add$',
+        shed_views.add_coordinator,
+        name='add-shed-coordinator'),
+    url(r'^shed/coordinator/remove$',
+        shed_views.remove_coordinator,
+        name='remove-shed-coordinator'),
+    url(r'^tool/(?P<tool_id>[0-9]+)$', tool_views.view_tool, name='tool'),
+    url(r'^tool/(?P<tool_id>[0-9]+)/edit$',
+        tool_views.edit_tool,
+        name='edit-tool'),
+    url(r'^tool/new$', tool_views.edit_tool, name='new-tool'),
+    url(r'^tool/action/request$',
+        tool_views.request_tool_ajax,
+        name='request-tool'),
+    url(r'^tool/action/request/cancel$',
+        tool_views.cancel_tool_request_ajax,
+        name='cancel-tool-request'),
+    url(r'^tool/action/request/accept$',
+        tool_views.accept_tool_request_ajax,
+        name='accept-tool-request'),
+    url(r'^tool/action/request/reject$',
+        tool_views.reject_tool_request_ajax,
+        name='reject-tool-request'),
+    url(r'^tool/action/ishome$',
+        tool_views.tool_is_home_ajax,
+        name='tool-is-home'),
+    url(r'^tool/action/istaken$',
+        tool_views.tool_is_taken_ajax,
+        name='tool-is-taken'),
+    url(r'^tool/action/shed/checkin$',
+        tool_views.tool_check_in_shed_ajax,
+        name='tool-check-in-shed'),
+    url(r'^tool/action/shed/checkout$',
+        tool_views.tool_check_out_shed_ajax,
+        name='tool-check-out-shed'),
+    url(r'^tool/action/deregister$',
+        tool_views.tool_deregister,
+        name='tool-deregister'),
+)
+

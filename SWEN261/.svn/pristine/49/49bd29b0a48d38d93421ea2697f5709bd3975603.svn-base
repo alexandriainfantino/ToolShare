@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block header %}Shed{% endblock %}
+
+{% block content %}
+Shed: {{ shed }}
+{% endblock %}
+

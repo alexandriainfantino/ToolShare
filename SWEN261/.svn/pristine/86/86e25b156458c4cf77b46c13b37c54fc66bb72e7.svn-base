@@ -1,0 +1,172 @@
+/* Sectional form style */
+
+.sectional-form fieldset {
+    position: relative;
+    padding-left: 200px;
+    border-bottom: solid 1px #d4d4d4;
+    padding-bottom: 30px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.sectional-form legend {
+    position: absolute;
+    top: 0;
+    left: 50px;
+    bottom: 0;
+    width: 150px;
+    cursor: default;
+}
+
+.sectional-form fieldset > *:not(legend):not(p) {
+    width: 300px;
+}
+
+.sectional-form p,
+.sectional-form .form-group {
+    margin-bottom: 20px;
+}
+
+.sectional-form input[type=submit] {
+    margin-left: 200px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.sectional-form label.error {
+    font-size: 10px;
+    font-weight: 400;
+    position: relative;
+    top: -3px;
+}
+
+.sectional-form label.error:empty {
+    display: none;
+}
+
+/* Plain-style panels */
+
+.panel.panel-plain {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.panel.panel-plain .panel-heading + .panel-body {
+    padding-top: 0;
+}
+
+/* Button styles */
+
+.btn.btn-lowercase {
+    text-transform: none;
+}
+
+.container .btn-fab {
+    position: absolute;
+    right: 15px;
+    top: -28px;
+    z-index: 10;
+}
+
+/* List styles */
+
+ul.plain {
+    list-style: none;
+    padding-left: 0;
+}
+
+/* Utility styles */
+
+.hide-if-empty:empty {
+    display: none;
+}
+
+/* Button styles */
+
+.btn-remove {
+    color: #F44336;
+    opacity: 0.5;
+    margin-left: 3px;
+}
+
+.btn-remove:hover {
+    color: #F44336;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.btn-in-panel-title {
+    padding: 2px 5px;
+    margin: -3px 0 0 4px;
+    font-size: 11px;
+    background-color: #F0F0F0 !important;
+}
+
+/* Add-coordinator form */
+
+#add-coordinator-form {
+    padding-top: 10px;
+    display: none;
+    margin-bottom: 20px;
+}
+
+#add-coordinator-form .error {
+    color: #F44336;
+    font-size: 10px;
+}
+
+#add-coordinator-form .error:empty {
+    display: none;
+}
+
+#add-coordinator-form .input-container {
+    display: inline-block;
+    width: 200px;
+}
+
+#add-coordinator-form button {
+    padding: 4px 6px;
+    margin: 2px;
+    font-size: 13px;
+}
+
+#coordinator_username {
+    display: inline-block;
+}
+
+/* Tool list */
+
+.toollist {
+    margin-top: 10px;
+}
+
+.tool {
+    padding: 5px 8px;
+    background-color: #F4F4F4 !important;
+    height: 80px;
+    display: block;
+    text-decoration: none;
+    text-align: left;
+    text-transform: none;
+    white-space: normal;
+}
+
+.tool .title {
+    font-weight: 400;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.tool .title,
+.tool .description {
+    pointer-events: none;
+}
+
+/* Action butotn dropdowns */
+
+.page-actions .dropdown-menu {
+    top: 23px;
+}
+

@@ -1,0 +1,24 @@
+/* Info table style */
+
+.panel-body th {
+    padding-right: 16px;
+}
+
+.panel-body th,
+.panel-body td {
+    vertical-align: top;
+    padding-bottom: 5px;
+}
+
+.panel-body td {
+    font-weight: 200;
+}
+
+.panel-body td p {
+    margin: 0;
+}
+
+.panel-body td em {
+    font-size: 12px;
+}
+

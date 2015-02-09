@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block header %}Welcome to ToolShare!{% endblock %}
+
+{% block content %}
+<div class="call-to-action">
+    <a href="{{ urls.register }}" class="btn btn-success btn-lg">Join Now</a>
+    <div class="call-to-action-or">or</div>
+    <a href="{{ urls.login }}" class="btn btn-primary btn-lg">Sign In</a>
+</div>
+ToolShare is the easy way to borrow and share tools with your neighbors.<br />
+<br />
+Join today to see what's available in your neighborhood!<br />
+<br />
+{% endblock %}
+

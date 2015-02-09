@@ -1,0 +1,16 @@
+/* Login form */
+
+.login-container {
+    width: 300px;
+    display: block;
+    margin: 0 auto;
+}
+
+.login-container .well {
+    overflow: hidden; /* floating button overhang fix */
+}
+
+.login-container input[type=submit] {
+    float: right;
+}
+

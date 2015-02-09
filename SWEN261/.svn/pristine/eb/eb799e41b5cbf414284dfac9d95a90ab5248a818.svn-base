@@ -1,0 +1,69 @@
+"""
+logic/shed.py
+
+Functions for interacting with ToolShare Shed objects.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare import models
+
+
+def get_shed_for_community(community):
+    """
+    Gets the shed for a community.
+
+    Args:
+        community: Community to get global shed for.
+
+    Returns:
+        Shed instance or None if none exists.
+    """
+    return models.Community.sheds.first()
+
+
+def create_shed_for_community(community, location):
+    """
+    Creates a shed in the community.
+
+    Only allows for one shed to exist per community at the moment.
+
+    Args:
+        community: Community to create shed in.
+        location: Location instance for the shed.
+
+    Returns:
+        New shed instance.
+    """
+    if get_shed_for_community(community) is not None:
+        raise Exception(
+                'A shed for community %s already exists.' % str(community))
+
+    raise NotImplementedError() # TODO(Doug)
+
+
+def shed_coordinators_for_community(community):
+    """
+    TODO: Docstring.
+    """
+    raise NotImplementedError() # TODO(Doug)
+
+
+def sheds_profile_is_coordinating(profile):
+    raise NotImplementedError() # TODO(Doug)
+
+
+def is_shed_coordinator(shed, profile):
+    raise NotImplementedError() # TODO(Doug)
+
+
+def add_shed_coordinator(shed, profile):
+    raise NotImplementedError() # TODO(Doug)
+
+
+def remove_shed_coordinator(shed, profile):
+    raise NotImplementedError() # TODO(Doug)
+
+
+# TODO(Doug): Add other logic functions needed for shed-related use cases.
+

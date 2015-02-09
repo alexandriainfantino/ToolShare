@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block header %}Edit Profile{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/static/css/register.css" />
+{% endblock %}
+
+{% block content %}
+<form action="/profile/edit" class="sectional-form registration" method="POST">
+    <div class="alert alert-warning">{{ form.error }}</div>
+    <fieldset>
+        <legend>Account</legend>
+        <div class="form-group {% if form.fields.email.error %}has-error{% endif %}">
+            <label class="control-label" for="email">Email</label>
+            <input class="form-control input-lg" tabindex="4" type="text" id="email" name="email" value="{{ form.fields.email.value }}" />
+            <label class="control-label error" for="email">{{ form.fields.email.error }}</label>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Profile</legend>
+        <div class="form-group {% if form.fields.first_name.error %}has-error{% endif %}">
+            <label class="control-label" for="first_name">First Name</label>
+            <input class="form-control input-lg" tabindex="5" type="text" id="first_name" name="first_name" value="{{ form.fields.first_name.value }}" />
+            <label class="control-label error" for="first_name">{{ form.fields.first_name.error }}</label>
+        </div>
+        <div class="form-group {% if form.fields.last_name.error %}has-error{% endif %}">
+            <label class="control-label" for="last_name">Last Name</label>
+            <input class="form-control input-lg" tabindex="6" type="text" id="last_name" name="last_name" value="{{ form.fields.last_name.value }}" />
+            <label class="control-label error" for="last_name">{{ form.fields.last_name.error }}</label>
+        </div>
+        <div class="form-group {% if form.fields.address.error %}has-error{% endif %}">
+            <label class="control-label" for="address">Address</label>
+            <textarea rows="3" class="form-control input" tabindex="7" id="address" name="address">{{ form.fields.address.value }}</textarea>
+            <label class="control-label error" for="address">{{ form.fields.address.error }}</label>
+        </div>
+    </fieldset>
+    {% csrf_token %}
+    <input class="btn btn-primary" tabindex="99" type="submit" value="Update" />
+</form>
+{% endblock %}
+

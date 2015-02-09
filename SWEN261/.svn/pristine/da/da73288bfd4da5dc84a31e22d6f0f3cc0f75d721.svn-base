@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}View Shed{% endblock %}
+
+{% block header %}Community Shed{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-3">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">Address</h3>
+            </div>
+            <div class="panel-body">
+                {{ shed.location }}
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Shed Coordinators
+                    {% if can_coordinate_shed %}
+                    <a href="#" onclick="return addCoordinator()" class="btn btn-default btn-xs btn-in-panel-title">
+                        <i class="glyphicon glyphicon-plus"></i>&nbsp;
+                        add
+                    </a>
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% if can_coordinate_shed %}
+                <form id="add-coordinator-form">
+                    {% csrf_token %}
+                    <div class="input-container">
+                        <input class="form-control floating-label" id="coordinator_username" type="text" placeholder="username" />
+                    </div>
+                    <button class="btn btn-flat btn-success">
+                        <i class="icon-material-person-add"></i>
+                    </button>
+                    <div class="error"></div>
+                </form>
+                {% endif %}
+                {% if shed.shed_coordinators.all %}
+                <ul class="plain">
+                {% for coordinator in shed.shed_coordinators.all %}
+                <li>
+                    <i class="glyphicon glyphicon-user"></i>&nbsp;
+                    {{ coordinator.user.first_name }}
+                    {{ coordinator.user.last_name }}
+                    {% if can_coordinate_shed %}
+                    <a href="#" class="btn-remove" onclick="return removeCoordinator('{{ coordinator.user.username }}')">
+                        <i class="glyphicon glyphicon-remove"></i>
+                    </a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+                {% if not shed.shed_coordinators.all %}
+                    <em id="no-coordinator-message">There are no shed coordinators yet. 
+                        {% if can_coordinate_shed %}
+                        <a href="#" onclick="return addCoordinator()">Assign a user.</a>
+                        {% endif %}
+                    </em>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-sm-12">
+        <div class="panel panel-plain">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Tools
+                    <a href="{% url 'new-tool' %}" class="btn btn-default btn-xs btn-in-panel-title">
+                        <i class="glyphicon glyphicon-plus"></i>&nbsp;
+                        add
+                    </a>
+                </h3>
+            </div>
+            <div class="panel-body">
+                {% if shed.tools.all %}
+                <div class="row toollist">
+                    {% for tool in shed.tools.all %}
+                    <div class="col-sm-4">
+                        <a href="{% url 'tool' tool.id %}" class="btn btn-default tool {% if tool in action_pending_tools %}action-pending{% endif %}">
+                            <div class="title">{{ tool.name }}</div>
+                            <div class="description">{{ tool.description|truncatechars:70 }}</div>
+                            <div class="status {{ tool.status_string }}">
+                                {{ tool.status_string }}
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <em>No tools have been registered with this shed.</em>
+                {% endif %}
+            </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(function() {
+        var $coordinator_form = $('#add-coordinator-form');
+
+        window.addCoordinator = function() {
+            $coordinator_form.fadeIn();
+            $coordinator_form.find('input[type=text]').focus();
+            $('#no-coordinator-message').hide();
+            return false;
+        };
+
+        window.removeCoordinator = function(username) {
+            var csrf = $coordinator_form.find('input[name=csrfmiddlewaretoken]').val();
+
+            var success = function(data, textStatus, jqXHR) {
+                if (data.error) {
+                    console.error(data.error);
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                location.reload();
+            };
+
+            var error = function(jqXHR, textStatus, error) {
+                console.error(error);
+                alert('Error removing shed coordinator: ' + error);
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ urls.remove_shed_coordinator }}',
+                data: {
+                    shed_id: {{ shed.id }},
+                    username: username,
+                    csrfmiddlewaretoken: csrf
+                },
+                success: success,
+                error: error,
+                dataType: 'json'
+            });
+            
+            return false;
+        };
+
+        $coordinator_form.submit(function(e) {
+            var username = $('#coordinator_username').val();
+            var csrf = $coordinator_form.find('input[name=csrfmiddlewaretoken]').val();
+
+            var success = function(data, textStatus, jqXHR) {
+                if (data.error) {
+                    $coordinator_form.find('.error').text(data.error);
+                    return;
+                }
+
+                location.reload();
+            };
+
+            var error = function(jqXHR, textStatus, error) {
+                $coordinator_form.find('.error').text(error);
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ urls.add_shed_coordinator }}',
+                data: {
+                    shed_id: {{ shed.id }},
+                    username: username,
+                    csrfmiddlewaretoken: csrf
+                },
+                success: success,
+                error: error,
+                dataType: 'json'
+            });
+
+            e.preventDefault();
+        });
+    });
+</script>
+{% endblock %}
+

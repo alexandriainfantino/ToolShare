@@ -1,0 +1,82 @@
+"""
+logic/shed.py
+
+Functions for interacting with ToolShare Shed objects.
+
+Copyright 2014 Stark.
+"""
+
+from ToolShare import models
+
+
+def get_shed_for_community(community):
+    """
+    Gets the shed for a community.
+
+    Args:
+        community: Community to get global shed for.
+
+    Returns:
+        Shed instance or None if none exists.
+    """
+    if community is None:
+        return None
+
+    return community.sheds.first()
+
+
+def create_shed_for_community(community, location):
+    """
+    Creates a shed in the community.
+
+    Only allows for one shed to exist per community at the moment.
+
+    Args:
+        community: Community to create shed in.
+        location: Location instance for the shed.
+
+    Returns:
+        New shed instance.
+    """
+    if get_shed_for_community(community) is not None:
+        raise Exception(
+                'A shed for community %s already exists.' % str(community))
+
+    shed = models.Shed(community=community, location=location)
+    shed.save()
+
+
+def shed_coordinators_for_community(community):
+    """
+    TODO: Docstring.
+    """
+    # raise NotImplementedError() # TODO(Doug)
+    return get_shed_for_community(community).shed_coordinators
+
+
+def sheds_profile_is_coordinating(profile):
+    return models.Shed.objects.filter(profile=profile).all()
+    #raise NotImplementedError() # TODO(Doug)
+
+
+def is_shed_coordinator(shed, profile):
+    shed_coords = models.ShedCoordinator.objects.filter(shed=shed,profile=profile).all()
+    return len(shed_coords) > 0
+    #raise NotImplementedError() # TODO(Doug)
+
+
+def add_shed_coordinator(shed, profile):
+    coordinator = models.ShedCoordinator(profile=profile,shed=shed)
+    coordinator.save()
+
+    # raise NotImplementedError() # TODO(Doug)
+
+
+def remove_shed_coordinator(shed, profile):
+    shed_coords = models.ShedCoordinator.objects.filter(shed=shed,profile=profile).all()
+    shed_coords.delete()
+    # raise NotImplementedError() # TODO(Doug)
+
+
+# TODO(Doug): Add other logic functions needed for shed-related use cases.
+
